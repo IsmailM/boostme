@@ -117,8 +117,8 @@ boostme <- function(bs,
     }
   }
 
-  metrics <- data.frame(matrix(nrow = ncol(bs), ncol = 9))
-  colnames(metrics) <- c("sample",
+  metrics <- data.frame(matrix(nrow = ncol(bs), ncol = 12))
+  colnames(metrics) <- c("sample", "totalSize", "missingSize", "imputedSize",
                          "rmse_val", "auroc_val", "auprc_val", "acc_val",
                          "rmse_test", "auroc_test", "auprc_test", "acc_test")
 
@@ -250,10 +250,6 @@ boostme <- function(bs,
       message(paste(Sys.time(), "...... Testing Accuracy:",
                     round(testMetrics$acc, digits = 4)))
     }
-    metrics[i, 1] <- sampleNames(bs)[i]
-    metrics[i, 2:ncol(metrics)] <-
-      c(valMetrics$rmse, valMetrics$auroc, valMetrics$auprc, valMetrics$acc,
-        testMetrics$rmse, testMetrics$auroc, testMetrics$auprc, testMetrics$acc)
 
     if (impute) {
       yCov <- as.vector(getCoverage(bs[, i]))
@@ -301,6 +297,13 @@ boostme <- function(bs,
         newY[-enoughInfoToImpute] <- NA
       }
       imputed[, i] <- newY
+
+    metrics[i, 1] <- sampleNames(bs)[i]
+    metrics[i, 2:ncol(metrics)] <-
+      c(length(yCov), length(replaceThese), length(enoughInfoToImpute),
+        valMetrics$rmse, valMetrics$auroc, valMetrics$auprc, valMetrics$acc,
+        testMetrics$rmse, testMetrics$auroc, testMetrics$auprc, testMetrics$acc)
+
     }
   }
   if (!is.null(save)) {
