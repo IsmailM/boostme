@@ -123,10 +123,10 @@ boostme <- function(bs,
                          "rmse_test", "auroc_test", "auprc_test", "acc_test")
 
   # only use the autosome
-  if (grepl('chr', trainChr)) { # if using chr in the names
-    bs <- chrSelectBSseq(bs, seqnames = paste("chr", 1:22, sep=""))
-  } else { # else don't use chr in the names
-    bs <- chrSelectBSseq(bs, seqnames = seq(1,22,1))
+  bs <- chrSelectBSseq(bs, seqnames = paste("chr", 1:22, sep=""))
+  if (length(bs) == 0) { # No data chr in the names
+    stop(paste("Unable to extract the autosomes from the bsseq object. Ensure",
+               "chromosomes are in the `chr1` format over `1`"))
   }
   if (mask) {
     message(paste(Sys.time(),
