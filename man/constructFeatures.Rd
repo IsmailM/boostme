@@ -4,8 +4,15 @@
 \alias{constructFeatures}
 \title{Feature construction}
 \usage{
-constructFeatures(bs, sample = 1, minCov = 10, sampleAvg = TRUE,
-  neighbMeth = TRUE, neighbDist = TRUE, featureBEDs = NULL)
+constructFeatures(
+  bs,
+  sample = 1,
+  minCov = 10,
+  sampleAvg = TRUE,
+  neighbMeth = TRUE,
+  neighbDist = TRUE,
+  featureBEDs = NULL
+)
 }
 \arguments{
 \item{bs}{a \code{BSseq} object}

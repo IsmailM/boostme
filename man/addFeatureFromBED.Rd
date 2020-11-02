@@ -7,14 +7,19 @@
 addFeatureFromBED(features, ranges, featureName = NULL, file = NULL)
 }
 \arguments{
-\item{features}{a data.frame to add the features to}
+\item{features}{a data.frame to add the features to.}
 
 \item{ranges}{a \code{GRanges} object with the ranges to overlap features
-(must have same length as the number of rows in the features data frame)}
+(must have same length as the number of rows in the features data frame).}
 
-\item{featureName}{what the feature should be called}
+\item{featureName}{what the feature should be called.}
 
-\item{file}{path to the BED File with 4 columns (chr, start, end, feature)}
+\item{file}{path to the BED File with >=3 columns (chr, start, end,
+feature(s)). If only 3 columns, the name of the file will be used as the
+feature name. If 4 columns, and the 4th column has multiple factors,
+uses the factor names of the 4th column as the feature names. Does not
+support files with features in > the 4th column (please separate into
+multiple BED files).}
 }
 \value{
 the original features data.frame with the new feature(s) added from
