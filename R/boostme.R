@@ -117,8 +117,9 @@ boostme <- function(bs,
     }
   }
 
-  metrics <- data.frame(matrix(nrow = ncol(bs), ncol = 12))
+  metrics <- data.frame(matrix(nrow = ncol(bs), ncol = 15))
   colnames(metrics) <- c("sample", "totalSize", "missingSize", "imputedSize",
+                         "trainSize", "validateSize", "testSize",
                          "rmse_val", "auroc_val", "auprc_val", "acc_val",
                          "rmse_test", "auroc_test", "auprc_test", "acc_test")
 
@@ -155,7 +156,6 @@ boostme <- function(bs,
         message(paste(Sys.time(), "... Randomly selecting CpGs for",
                       "training, validation, and testing"))
       }
-      targetSize <- trainSize + validateSize + testSize
       bigBS <- constructFeatures(bs, sample = i, minCov = minCov,
                                sampleAvg = sampleAvg,
                                neighbMeth = neighbMeth,
@@ -163,6 +163,13 @@ boostme <- function(bs,
                                featureBEDs = featureBEDs)
       bigBS <- bigBS[complete.cases(bigBS), ]
       set.seed(seed)
+      targetSize <- trainSize + validateSize + testSize
+      if (targetSize == 1) {
+        trainSize <- floor(trainSize * nrow(bigBS))
+        validateSize <- floor(validateSize * nrow(bigBS))
+        testSize <- floor(testSize * nrow(bigBS))
+        targetSize <- nrow(bigBS)
+      }
       bigBS <- sample_n(bigBS, targetSize)
       myTrain <- bigBS[1:trainSize, ]
       myValidate <- bigBS[(trainSize + 1):(trainSize + validateSize), ]
@@ -301,6 +308,7 @@ boostme <- function(bs,
     metrics[i, 1] <- sampleNames(bs)[i]
     metrics[i, 2:ncol(metrics)] <-
       c(length(yCov), length(replaceThese), length(enoughInfoToImpute),
+        trainSize, validateSize, testSize,
         valMetrics$rmse, valMetrics$auroc, valMetrics$auprc, valMetrics$acc,
         testMetrics$rmse, testMetrics$auroc, testMetrics$auprc, testMetrics$acc)
 
