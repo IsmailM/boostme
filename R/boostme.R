@@ -53,6 +53,8 @@
 #' multiple BED files).
 #' @param mask logical value of whether to mask all unimputed values as NA
 #' in resulting data frame.
+#' @param filterDist integer of the maximam value of neighbDist to use for
+#' training. Default is 1000.
 #' @param seed optional integer random seed used before selecting random CpGs
 #' for training/validation/testing.
 #' @param threads (optional) number of threads to use for training. default = 2
@@ -96,6 +98,7 @@ boostme <- function(bs,
                     neighbDist = TRUE,
                     featureBEDs = NULL,
                     mask = FALSE,
+                    filterDist = 1000,
                     threads = 2,
                     seed = 1,
                     save = NULL,
@@ -162,6 +165,9 @@ boostme <- function(bs,
                                neighbDist = neighbDist,
                                featureBEDs = featureBEDs)
       bigBS <- bigBS[complete.cases(bigBS), ]
+      if (neighbDist == TRUE && filterDist != FALSE) {
+        bigBS <- bigBS[bigBS$upDist <= filterDist & bigBS$downDist <= filterDist, ]
+      }
       set.seed(seed)
       targetSize <- trainSize + validateSize + testSize
       if (targetSize == 1) {
@@ -204,6 +210,12 @@ boostme <- function(bs,
       myTrain <- myTrain[complete.cases(myTrain), ]
       myValidate <- myValidate[complete.cases(myValidate), ]
       myTest <- myTest[complete.cases(myTest), ]
+
+      if (neighbDist == TRUE && filterDist != FALSE) {
+        myTrain <- myTrain[myTrain$upDist <= filterDist & myTrain$downDist <= filterDist, ]
+        myValidate <- myValidate[myValidate$upDist <= filterDist & myValidate$downDist <= filterDist, ]
+        myTest <- myTest[myTest$upDist <= filterDist & myTest$downDist <= filterDist, ]
+      }
     }
     if (verbose) {
       print(str(myTrain))
@@ -276,8 +288,16 @@ boostme <- function(bs,
                                neighbMeth = neighbMeth,
                                neighbDist = neighbDist,
                                featureBEDs = featureBEDs)
+
+      if (neighbDist == TRUE && filterDist != FALSE) {
+        # set dist to NA if above filterDist
+        dat[which(dat$upDist >= filterDist), "upDist"] <- NA
+        dat[which(dat$downDist >= filterDist), "downDist"] <- NA
+      }
+
       enoughInfoToImpute <- replaceThese[which(
         complete.cases(dat[replaceThese, -1]))]
+
       if (verbose) {
         message(paste(Sys.time(), "...... Able to impute",
                       length(enoughInfoToImpute),
